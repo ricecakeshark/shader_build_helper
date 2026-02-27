@@ -1,0 +1,11 @@
+name "shader_build"
+description "A minimal D application."
+authors "RiceShark"
+copyright "Copyright © 2026, RiceShark"
+license "proprietary"
+
+targetType "executable"
+targetName "app"
+targetPath "build"
+
+dependency "kelp-core" path="..\\kelp_core"
