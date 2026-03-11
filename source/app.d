@@ -5,37 +5,55 @@ import std.string;
 import std.format;
 
 import std.file;
-import std.typecons;
-import std.path : baseName, isValidPath;
+import std.typecons : Tuple;
+import std.path : baseName, isValidPath, setExtension;
 import std.parallelism;
+import core.runtime;
 
 void main()
 {
-	auto build_task_pool = new TaskPool();
-	foreach (entry; "./shader/src/glsl/".dirEntries(SpanMode.shallow))
+	bool verbose;
+
+	foreach (arg; Runtime.args)
 	{
-		//build_glsl(entry);
-		build_task_pool.put(task!build_glsl(entry));
+		switch (arg)
+		{
+		case "--verbode":
+			verbose = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	auto build_task_pool = new TaskPool();
+	writefln("starting build... (cpus=%d)", build_task_pool.size);
+	foreach (DirEntry entry; dirEntries("shader/src/glsl", "*.glsl", SpanMode.shallow))
+	{
+		build_task_pool.put(task!build_glsl(entry, verbose));
 	}
 	build_task_pool.finish(true);
+	writeln("finished build.");
 	return;
 }
 
-void build_glsl(string input_file_path)
+void build_glsl(string input_path, bool verbose = false)
 {
-	enforce(input_file_path.isValidPath);
-	enforce(input_file_path.exists);
-	enforce(input_file_path.isFile);
-	string output_path = "./shader/build/spirv/" ~ baseName(input_file_path).chomp(".glsl") ~ ".spv";
-	if (timeLastModified(input_file_path) < timeLastModified(output_path))
+	string output_path;
+
+	enforce(input_path.isValidPath);
+	enforce(input_path.exists);
+	enforce(input_path.isFile);
+	output_path = "shader/build/spirv/" ~ baseName(input_path).setExtension("spv");
+	if (output_path.exists == true)
 	{
-		writefln("skipped: %s ", input_file_path);
-		return;
+		if (timeLastModified(input_path) < timeLastModified(output_path))
+		{
+			writefln("Skip: %s", input_path);
+			return;
+		}
 	}
-	else
-	{
-		writefln("building: %s ", input_file_path);
-	}
+	writefln("Start: %s", input_path);
 
 	Tuple!(int, "status", string, "output") glslang;
 	glslang = execute([
@@ -43,9 +61,13 @@ void build_glsl(string input_file_path)
 		"-V",
 		"--target-env", "vulkan1.1",
 		"-o", output_path,
-		input_file_path,
+		input_path,
 	]);
-	writefln("finished: %s",output_path);
-	writeln(glslang.output);
+	writefln("Finish: %s", output_path);
+	if (verbose)
+	{
+		writeln(glslang.output);
+	}
+
 	return;
 }
