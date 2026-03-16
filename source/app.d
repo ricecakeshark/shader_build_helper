@@ -18,7 +18,7 @@ void main()
 	{
 		switch (arg)
 		{
-		case "--verbode":
+		case "--verbose", "-v":
 			verbose = true;
 			break;
 		default:
