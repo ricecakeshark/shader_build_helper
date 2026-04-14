@@ -1,33 +1,14 @@
-import std.exception;
-import std.stdio;
-import std.process;
-import std.string;
-import std.format;
-
+import std.exception : enforce;
 import std.file;
 import std.typecons : Tuple;
 import std.path : baseName, isValidPath, setExtension;
-import std.parallelism;
-import core.runtime;
+import std.parallelism : task, TaskPool;
+import std.process : execute;
+import std.stdio;
 
 void main()
 {
 	BuildFlag build_flag;
-
-	foreach (arg; Runtime.args)
-	{
-		switch (arg)
-		{
-		case "--verbose", "-v":
-			build_flag.verbose = true;
-			break;
-		case "--force", "-f":
-			build_flag.force_to_build = true;
-			break;
-		default:
-			break;
-		}
-	}
 
 	auto build_task_pool = new TaskPool();
 	writefln("starting build... (cpus=%d)", build_task_pool.size);
@@ -85,6 +66,27 @@ void build_glsl(string input_path, BuildFlag build_flag)
 
 struct BuildFlag
 {
+	import core.runtime;
+
 	bool verbose;
 	bool force_to_build;
+
+	void getopt()
+	{
+		foreach (arg; Runtime.args)
+		{
+			switch (arg)
+			{
+			case "--verbose", "-v":
+				this.verbose = true;
+				break;
+			case "--force", "-f":
+				this.force_to_build = true;
+				break;
+			default:
+				break;
+			}
+		}
+		return;
+	}
 }
