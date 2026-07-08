@@ -1,5 +1,6 @@
 import std.exception : enforce;
 import std.file;
+//import std.getopt;
 import std.typecons : Tuple;
 import std.path : baseName, isValidPath, setExtension;
 import std.parallelism : task, TaskPool;
@@ -9,6 +10,7 @@ import std.stdio;
 void main()
 {
 	BuildFlag build_flag;
+	build_flag.get();
 
 	auto build_task_pool = new TaskPool();
 	writefln("starting build... (cpus=%d)", build_task_pool.size);
@@ -44,6 +46,7 @@ void build_glsl(string input_path, BuildFlag build_flag)
 		"glslangValidator",
 		"-V",
 		"--target-env", "vulkan1.4",
+		(build_flag.optimize_aggresive)?"-Os":"",
 		"-o", output_path,
 		input_path,
 	]);
@@ -70,8 +73,9 @@ struct BuildFlag
 
 	bool verbose;
 	bool force_to_build;
+	bool optimize_aggresive;
 
-	void getopt()
+	void get()
 	{
 		foreach (arg; Runtime.args)
 		{
@@ -82,6 +86,9 @@ struct BuildFlag
 				break;
 			case "--force", "-f":
 				this.force_to_build = true;
+				break;
+			case "--optimize", "-O":
+				this.optimize_aggresive = true;
 				break;
 			default:
 				break;
