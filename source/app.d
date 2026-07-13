@@ -1,5 +1,7 @@
+import std.array;
 import std.exception : enforce;
 import std.file;
+
 //import std.getopt;
 import std.typecons : Tuple;
 import std.path : baseName, isValidPath, setExtension;
@@ -40,13 +42,21 @@ void build_glsl(string input_path, BuildFlag build_flag)
 		}
 	}
 	writefln("Start: %s", input_path);
+	writefln("execute: '%s'", [
+			"glslang",
+			"-V",
+			"--target-env", "vulkan1.4",
+			//(build_flag.optimize_aggresive)?"-Os":"",
+			"-o", output_path,
+			input_path,
+		].join(" "));
 
 	Tuple!(int, "status", string, "output") glslang;
 	glslang = execute([
-		"glslangValidator",
+		"glslang",
 		"-V",
 		"--target-env", "vulkan1.4",
-		(build_flag.optimize_aggresive)?"-Os":"",
+		"-Os",
 		"-o", output_path,
 		input_path,
 	]);
