@@ -47,6 +47,7 @@ void build_glsl(string input_path, BuildFlag build_flag)
 			"-V",
 			"--target-env", "vulkan1.4",
 			//(build_flag.optimize_aggresive)?"-Os":"",
+			"-Os",
 			"-o", output_path,
 			input_path,
 		].join(" "));

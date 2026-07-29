@@ -5,7 +5,9 @@ copyright "Copyright © 2026, RiceShark"
 license "proprietary"
 
 targetType "executable"
-targetName "app"
+targetName "shader_builder"
 targetPath "build"
 
 dependency "kelp-core" path="..\\kelp_core"
+
+copyFiles "bin\\glslang.exe"
