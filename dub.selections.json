@@ -1,6 +1,12 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"dulse": "0.2.0+commit.6.g5a985be"
+		"bindbc-common": "1.0.5",
+		"bindbc-loader": "1.1.5",
+		"bindbc-sdl": "2.4.4",
+		"dulse": "0.2.0+commit.6.g5a985be",
+		"dulse-gfx": "0.2.0+commit.6.gea19e81",
+		"dulse-gfx-preset": "0.1.0+commit.5.g5de6ca1",
+		"dulse-sdl": "0.2.0+commit.3.gdce0f6c"
 	}
 }

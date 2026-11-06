@@ -17,6 +17,7 @@ void main(string[] args)
 		args,
 		"src", &(build_opt.src_path),
 		"dest", &build_opt.dest_path,
+		"force", &build_opt.force_to_build,
 		"verbose", &build_opt.verbose,
 	);
 
@@ -61,9 +62,10 @@ void build_shader(string source_file, BuildOption build_opt)
 
 	writefln("Started build: %s", source_file);
 
-	writefln("execute: '%s'", escapeShellCommand(glslang_command));
+	writefln("execute: '%s'", glslang_command.join(" "));
+
 	Tuple!(int, "status", string, "output") glslang;
-	glslang = execute(glslang_command);
+	glslang = execute(escapeShellCommand(glslang_command));
 	if (glslang.status == 0)
 	{
 		writefln("Finished build: %s", dest_file);

@@ -1,4 +1,4 @@
-name "shader_build"
+name "shader-builder"
 description "A minimal D application."
 authors "RiceShark"
 copyright "Copyright © 2026, RiceShark"
@@ -10,5 +10,6 @@ targetPath "build"
 workingDirectory "build"
 
 dependency "dulse" version="~>0.2"
+dependency "dulse-gfx-preset" version="~>0.1"
 
 copyFiles "bin\\glslang.exe"
