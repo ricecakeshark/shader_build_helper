@@ -7,7 +7,8 @@ license "proprietary"
 targetType "executable"
 targetName "shader_builder"
 targetPath "build"
+workingDirectory "build"
 
-dependency "kelp-core" path="..\\kelp_core"
+dependency "dulse" version="~>0.2"
 
 copyFiles "bin\\glslang.exe"
