@@ -15,20 +15,22 @@ void main(string[] args)
 
 	auto opt_info = getopt(
 		args,
-		"src", &(build_opt.src_path),
-		"dest", &build_opt.dest_path,
-		"force", &build_opt.force_to_build,
-		"verbose", &build_opt.verbose,
+		"src|s", &(build_opt.src_path),
+		"dest|d", &build_opt.dest_path,
+		"force|f", &build_opt.force_to_build,
+		"verbose|v", &build_opt.verbosity,
 	);
 
 	auto build_task_pool = new TaskPool();
-	writefln("starting build... (cpus=%d)", build_task_pool.size);
+
+	build_opt.logf!(1)("Starting all build... (cpus=%d)", build_task_pool.size);
 	foreach (DirEntry entry; dirEntries(build_opt.src_path, "*.glsl", SpanMode.shallow))
 	{
 		build_task_pool.put(task!build_shader(entry, build_opt));
 	}
 	build_task_pool.finish(true);
-	writeln("finished build.");
+	build_opt.log!(1)("fFnished all build.");
+
 	return;
 }
 
@@ -45,7 +47,7 @@ void build_shader(string source_file, BuildOption build_opt)
 	{
 		if (timeLastModified(source_file) < timeLastModified(dest_file))
 		{
-			writefln("Skip: %s", source_file);
+			build_opt.logf!(1)("Skip: %s", source_file);
 			return;
 		}
 	}
@@ -60,25 +62,25 @@ void build_shader(string source_file, BuildOption build_opt)
 		source_file,
 	];
 
-	writefln("Started build: %s", source_file);
-
-	writefln("execute: '%s'", glslang_command.join(" "));
+	build_opt.logf!(2)(
+		"Started build: %s\n%s",
+		source_file, glslang_command.join(" ")
+	);
 
 	Tuple!(int, "status", string, "output") glslang;
-	glslang = execute(escapeShellCommand(glslang_command));
+	glslang = execute(glslang_command);
+
 	if (glslang.status == 0)
 	{
-		writefln("Finished build: %s", dest_file);
-		if (build_opt.verbose)
-		{
-			writeln(glslang.output);
-		}
+		build_opt.logf!(2)("Finished build: %s", dest_file);
+		build_opt.log!(3)(glslang.output);
 	}
 	else
 	{
-		writefln("Failed build: %s", dest_file);
-		writeln(glslang.output);
+		build_opt.logf!(2)("Failed build: %s", dest_file);
+		build_opt.log!(3)(glslang.output);
 	}
+
 	return;
 }
 
@@ -86,6 +88,24 @@ struct BuildOption
 {
 	string src_path = "shader/src/glsl";
 	string dest_path = "shader/build/spirv";
-	bool verbose = false;
+	uint verbosity = 1;
 	bool force_to_build = false;
+
+	void logf(uint log_level, TypeSeq...)(TypeSeq args)
+	{
+		if (log_level <= this.verbosity)
+		{
+			writefln(args);
+		}
+		return;
+	}
+
+	void log(uint log_level, TypeSeq...)(TypeSeq args)
+	{
+		if (log_level <= this.verbosity)
+		{
+			writeln(args);
+		}
+		return;
+	}
 }
